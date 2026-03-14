@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "python-starter-template"
+name = "logpipe"
 version = "0.1.0"
-description = "Python starter template with best practices"
+description = "Logger setup with rotating file handlers and convenience functions"
 readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT"
@@ -13,7 +13,7 @@ authors = [{ name = "Josh Wren" }]
 dependencies = []
 
 [tool.hatch.build.targets.wheel]
-packages = ["example_module"]
+packages = ["logpipe"]
 
 [dependency-groups]
 dev = [
@@ -29,14 +29,14 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--cov=example_module",
+    "--cov=logpipe",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=96",
 ]
 
 [tool.coverage.run]
-source = ["example_module"]
+source = ["logpipe"]
 omit = [
     "*/tests/*",
     "*/test_*.py",
@@ -66,7 +66,7 @@ ignore = ["D203", "D213", "E501"]
 convention = "google"
 
 [tool.pyright]
-include = ["example_module", "tests"]
+include = ["logpipe", "tests"]
 exclude = ["**/node_modules", "**/__pycache__", ".venv"]
 venvPath = "."
 venv = ".venv"
