@@ -1,12 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "python-starter-template"
 version = "0.1.0"
 description = "Python starter template with best practices"
 readme = "README.md"
 requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Josh Wren" }]
 dependencies = []
 
-[project.optional-dependencies]
+[tool.hatch.build.targets.wheel]
+packages = ["example_module"]
+
+[dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.0.0",
