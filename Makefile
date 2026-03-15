@@ -42,7 +42,7 @@ githook: install-githook  ## Run lint checks manually (installs pre-commit hook 
 	bash scripts/lint.sh
 
 pytest:  ## Run tests
-	source .venv/bin/activate && pytest
+	. .venv/bin/activate && pytest
 
 sync:  ## Install dependencies
 	uv sync --group dev
