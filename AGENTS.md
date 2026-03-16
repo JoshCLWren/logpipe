@@ -1,45 +1,47 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-The main application code lives in the `example_module` directory (which can be renamed via `make init`). The entrypoint is `main.py`. Tooling metadata (`pyproject.toml`, `uv.lock`) defines project dependencies. Expect any future modules (tests, components, helpers) to sit alongside these files unless a new package directory is created.
+The main package code lives in the `logpipe` directory. The package provides:
+- `logger.py` - Core logger setup with rotating file and console handlers
+- `convenience.py` - Convenience logging functions using a root logger
+- `__init__.py` - Public API exports
+
+No entrypoint module exists as logpipe is a library package.
 
 ## Build, Test, and Development Commands
-- `make init NAME=your-project`: initialize the template with your project name (renames module and updates config).
-- `source .venv/bin/activate`: activate the virtual environment (do this once per session).
-- `uv sync --all-extras`: install dependencies via uv.
-- `python main.py`: run the main entrypoint.
-- `pytest`: run tests.
-- `make pytest`: run the test suite.
-- `make lint`: run ruff.
+- `uv sync --all-extras`: Install dependencies via uv.
+- `pytest` or `make pytest`: Run the test suite.
+- `make lint`: Run ruff and pyright checks.
 
 ## Getting Started
-When cloning this template for a new project:
-1. Run `make init NAME=your-project` to rename the module and update config
-2. Run `uv sync --all-extras` to install all dependencies
-3. Run `source .venv/bin/activate` to activate the virtual environment
-4. Start building your project!
+When working on logpipe:
+1. Run `uv sync --all-extras` to install all dependencies
+2. Run `source .venv/bin/activate` to activate the virtual environment
+3. Run `pytest` to verify tests pass
+4. Make changes to the logger or convenience functions
+5. Run `make lint` before committing
 
 ## Git Worktrees (Parallel Work)
 Use git worktrees to work on multiple cards in parallel without branch conflicts:
 - Create a branch per card: `git switch -c card/short-slug`
-- Add a worktree: `git worktree add ../project-<slug> card/short-slug`
+- Add a worktree: `git worktree add ../logpipe-<slug> card/short-slug`
 - Work only in that worktree for the card; run tests there.
 - Keep the branch updated: `git fetch` then `git rebase origin/main` (or merge).
-- When merged, remove it: `git worktree remove ../project-<slug>`
+- When merged, remove it: `git worktree remove ../logpipe-<slug>`
 - Clean stale refs: `git worktree prune`
 - WIP limit: 3 cards total in progress across all worktrees.
 
 ## Test Coverage Requirements
 - Current target: 96% coverage threshold (configured in `pyproject.toml`)
-- Always run `pytest --cov=example_module --cov-report=term-missing` to check missing coverage
-- When touching logic or input handling, ensure tests are added to maintain coverage
+- Always run `pytest --cov=logpipe --cov-report=term-missing` to check missing coverage
+- When touching logger logic or convenience functions, ensure tests are added to maintain coverage
 - Strategies for increasing coverage:
-  - Add tests for remaining uncovered edge cases
-  - Add tests for complex error handling paths
-  - Add tests for platform-specific code paths
+  - Add tests for remaining uncovered edge cases in file rotation
+  - Add tests for complex error handling paths in logger setup
+  - Add tests for different logging level configurations
 
 ## Coding Style & Naming Conventions
-Follow standard PEP 8 spacing (4 spaces, 100-character soft wrap) and favor descriptive snake_case for functions and variables. Retain the current pattern of dataclasses for typed data containers and keep public functions annotated with precise types. Prefer explicit helper names and guard callbacks with early returns rather than nesting.
+Follow standard PEP 8 spacing (4 spaces, 100-character soft wrap) and favor descriptive snake_case for functions and variables. Keep public functions annotated with precise types. Use Literal types for string parameters with fixed values (e.g., `LogLevel`).
 
 Ruff configuration (from `pyproject.toml`):
 - Line length: 100 characters
@@ -67,6 +69,7 @@ To test the hook manually: `make githook` or `bash scripts/lint.sh`
 - Run linting after each change:
   - `make lint` or `bash scripts/lint.sh`
 - Use specific types instead of `Any` in type annotations (ruff ANN401 rule)
+  - Exception: Convenience functions use `**kwargs: Any` to match logging module signatures
 - Run tests when you touch logic or input handling:
   - `pytest`
 - Always write a regression test when fixing a bug.
@@ -75,9 +78,10 @@ To test the hook manually: `make githook` or `bash scripts/lint.sh`
 - Do not narrate your code with comments; prefer clear code and commit messages.
 
 ## Style Guidelines
-- Keep helpers explicit and descriptive (snake_case), and annotate public
-  functions with precise types.
-- Avoid shell-specific shortcuts; prefer Python APIs and `pathlib.Path` helpers.
+- Keep functions explicit and descriptive (snake_case), and annotate public functions with precise types.
+- Use Literal types for string parameters with fixed values (e.g., `LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]`).
+- Prefer pathlib.Path for file path operations over strings.
+- Follow standard library patterns for logging API compatibility.
 
 ## Branch Workflow
 - Always create a feature branch from `main` before making changes:
@@ -91,11 +95,14 @@ To test the hook manually: `make githook` or `bash scripts/lint.sh`
 
 ## Testing Guidelines
 - Automated tests live in `tests/` and run with `python -m pytest` (or `make pytest`).
-- When adding tests, keep `pytest` naming like `test_example_function`.
-- Always use appropriate fixtures from `conftest.py` for testing dependencies.
+- When adding tests, keep `pytest` naming like `test_logger_setup`, `test_convenience_functions`.
+- Use appropriate fixtures from `conftest.py` for testing dependencies.
+- Test both successful operations and error conditions.
+- Test file rotation behavior with different size limits.
+- Test logger configuration with and without file handlers.
 
 ## Commit & Pull Request Guidelines
-- Use imperative, component-scoped commit messages (e.g., "Add feature X")
+- Use imperative, component-scoped commit messages (e.g., "Add file rotation support")
 - Bundle related changes per commit
 - PR summary should describe user impact and testing performed
-- Attach screenshots when UI is affected
+- For convenience function changes, include usage examples in PR description
